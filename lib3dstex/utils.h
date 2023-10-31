@@ -49,3 +49,14 @@
 #endif
 
 extern void swap32s(uint32_t* buf, size_t size);
+extern void swap24s(uint8_t* buf, size_t size);
+
+extern void decode_block8(uint8_t* in, size_t width, size_t height, uint8_t* out);
+extern void decode_block16(uint16_t* in, size_t width, size_t height, uint16_t* out);
+extern void decode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out);
+extern void decode_block32(uint32_t* in, size_t width, size_t height, uint32_t* out);
+
+extern void encode_block8(uint8_t* in, size_t width, size_t height, uint8_t* out);
+extern void encode_block16(uint16_t* in, size_t width, size_t height, uint16_t* out);
+extern void encode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out);
+extern void encode_block32(uint32_t* in, size_t width, size_t height, uint32_t* out);
