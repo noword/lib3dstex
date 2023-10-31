@@ -33,11 +33,12 @@ void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
         gEtc1Inited = true;
     }
 
+    rg_etc1::etc1_pack_params params;
+    params.clear();
+
     uint32_t *tmp   = new uint32_t[width * height];
     uint8_t * p     = inbuf;
     uint64_t *out64 = (uint64_t *)outbuf;
-    rg_etc1::etc1_pack_params params;
-    params.clear();
 
     for (size_t i = 0; i < width * height; i++)
     {
@@ -72,6 +73,55 @@ void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     delete[]tmp;
 }
 
+void encode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    if (!gEtc1Inited)
+    {
+        rg_etc1::pack_etc1_block_init();
+        gEtc1Inited = true;
+    }
+
+    rg_etc1::etc1_pack_params params;
+    params.clear();
+
+    uint32_t *in32  = (uint32_t *)inbuf;
+    uint64_t *out64 = (uint64_t *)outbuf;
+
+    for (int ty = 0; ty < height; ty += 8)
+    {
+        for (int tx = 0; tx < width; tx += 8)
+        {
+            uint32_t pixels[64];
+            uint32_t  alpha[64] = { 0 };
+            for (int i = 0; i < 64; i++)
+            {
+                size_t   order = ETC1_TILE_ORDER[i];
+                size_t   x     = order & 7;
+                size_t   y     = order >> 3;
+                uint32_t p     = in32[(ty + y) * width + tx + x];
+                pixels[i] = (p & 0xffffff) | 0xff000000;
+                alpha[i]  = p >> 28;
+            }
+
+            unsigned int *p = (unsigned int *)pixels;
+            for (int i = 0; i < 4; i++)
+            {
+                *out64 = 0;
+                for (int j = 15; j >= 0; j--)
+                {
+                    *out64 <<= 4;
+                    *out64  |= alpha[i * 16 + ETC1_ALPHA_ORDER[j]];
+                }
+                out64++;
+
+                rg_etc1::pack_etc1_block(out64, p + i * 16, params);
+                *out64 = bswap_64(*out64);
+                out64++;
+            }
+        }
+    }
+}
+
 const CODEC_FUNC ENCODE_FUNCTIONS[] = { encode_rgba8,
                                         encode_rgb8,
                                         NULL,
@@ -85,7 +135,7 @@ const CODEC_FUNC ENCODE_FUNCTIONS[] = { encode_rgba8,
                                         NULL,
                                         NULL,
                                         encode_etc1,
-                                        NULL,
+                                        encode_etc1a4,
 };
 
 const float ENCODE_RATIO[] = { 4,   // RGBA_8888
@@ -101,7 +151,7 @@ const float ENCODE_RATIO[] = { 4,   // RGBA_8888
                                0.5, // LUMINANCE_4
                                0.5, // ALPHA_4
                                0.5, // ETC1_RGB8
-                               0.5  // ETC1_A4
+                               1    // ETC1_A4
 };
 
 EXPORT size_t get_encode_size(size_t width, size_t height, TEXTURE_FORMAT format)

@@ -49,6 +49,37 @@ void decode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 
 void decode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
+    uint64_t *in64 = (uint64_t *)inbuf;
+    for (int ty = 0; ty < height; ty += 8)
+    {
+        for (int tx = 0; tx < width; tx += 8)
+        {
+            uint32_t pixels[64];
+            uint32_t alpha[64];
+
+            for (int i = 0; i < 4; i++)
+            {
+                uint64_t a = *in64++;
+                for (int j = 0; j < 16; j++)
+                {
+                    alpha[i * 16 + ETC1_ALPHA_ORDER[j]] = (a & 0xf) << 28;
+                    a >>= 4;
+                }
+
+                uint64_t tmp = bswap_64(*in64++);
+                rg_etc1::unpack_etc1_block(&tmp, pixels + i * 16, false);
+            }
+
+            for (int i = 0; i < 64; i++)
+            {
+                size_t    order = ETC1_TILE_ORDER[i];
+                size_t    x     = order & 7;
+                size_t    y     = order >> 3;
+                uint32_t *out   = (uint32_t *)(outbuf + ((ty + y) * width + tx + x) * 4);
+                *out = (pixels[i] & 0xffffff) | alpha[i];
+            }
+        }
+    }
 }
 
 const CODEC_FUNC DECODE_FUNCTIONS[] = { decode_rgba8,

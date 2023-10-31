@@ -80,3 +80,4 @@ def test(image_name, fmt):
 test('rgba.tga', 'RGBA8888')
 test('rgb.tga', 'RGB888')
 test('rgb.tga', 'ETC1')
+test('rgba.tga', 'ETC1_A4')
