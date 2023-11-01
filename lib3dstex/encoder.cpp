@@ -25,6 +25,54 @@ void encode_rgb8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     delete[]tmp;
 }
 
+void encode_rgba5551(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    for (int i = 0; i < width * height; i++)
+    {
+        tmp[i] = ((inbuf[0] >> 3) << 11) | //R
+                 ((inbuf[1] >> 3) << 6) |  //G
+                 ((inbuf[2] >> 3) << 1) |  //B
+                 (inbuf[3] ? 1 : 0);       //A
+        inbuf += 4;
+    }
+    encode_block16(tmp, width, height, (uint16_t *)outbuf);
+    delete[]tmp;
+}
+
+void encode_rgb565(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    for (int i = 0; i < width * height; i++)
+    {
+        tmp[i] = ((inbuf[0] >> 3) << 11) | //R
+                 ((inbuf[1] >> 2) << 5) |  //G
+                 (inbuf[2] >> 3);          //B
+        inbuf += 3;
+    }
+    encode_block16(tmp, width, height, (uint16_t *)outbuf);
+    delete[]tmp;
+}
+
+void encode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    for (int i = 0; i < width * height; i++)
+    {
+        tmp[i] = ((inbuf[0] >> 4) << 12) | //R
+                 ((inbuf[1] >> 4) << 8) |  //G
+                 ((inbuf[2] >> 4) << 4) |  //B
+                 (inbuf[3] >> 4);          //A
+        inbuf += 4;
+    }
+    encode_block16(tmp, width, height, (uint16_t *)outbuf);
+    delete[]tmp;
+}
+
+void encode_la88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+}
+
 void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     if (!gEtc1Inited)
@@ -92,7 +140,7 @@ void encode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
         for (int tx = 0; tx < width; tx += 8)
         {
             uint32_t pixels[64];
-            uint32_t  alpha[64] = { 0 };
+            uint32_t alpha[64] = { 0 };
             for (int i = 0; i < 64; i++)
             {
                 size_t   order = ETC1_TILE_ORDER[i];
@@ -124,10 +172,10 @@ void encode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 
 const CODEC_FUNC ENCODE_FUNCTIONS[] = { encode_rgba8,
                                         encode_rgb8,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
+                                        encode_rgba5551,
+                                        encode_rgb565,
+                                        encode_rgba4444,
+                                        encode_la88,
                                         NULL,
                                         NULL,
                                         NULL,

@@ -15,6 +15,54 @@ void decode_rgb8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     swap24s(outbuf, width * height);
 }
 
+void decode_rgba5551(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    decode_block16((uint16_t *)inbuf, width, height, tmp);
+    for (int i = 0; i < width * height; i++)
+    {
+        uint16_t t = tmp[i];
+        *outbuf++ = (t >> 11) << 3;         //R
+        *outbuf++ = ((t >> 6) & 0x1f) << 3; //G
+        *outbuf++ = ((t >> 1) & 0x1f) << 3; //B
+        *outbuf++ = (t & 1) * 0xff;         //A
+    }
+    delete[]tmp;
+}
+
+void decode_rgb565(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    decode_block16((uint16_t *)inbuf, width, height, tmp);
+    for (int i = 0; i < width * height; i++)
+    {
+        uint16_t t = tmp[i];
+        *outbuf++ = (t >> 11) << 3;         //R
+        *outbuf++ = ((t >> 5) & 0x3f) << 2; //G
+        *outbuf++ = (t & 0x1f) << 3;        //B
+    }
+    delete[]tmp;
+}
+
+void decode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    decode_block16((uint16_t *)inbuf, width, height, tmp);
+    for (int i = 0; i < width * height; i++)
+    {
+        uint16_t t = tmp[i];
+        *outbuf++ = (t >> 12) << 4;        //R
+        *outbuf++ = ((t >> 8) & 0xf) << 4; //G
+        *outbuf++ = ((t >> 4) & 0xf) << 4; //B
+        *outbuf++ = (t & 0xf) << 4;        //A
+    }
+    delete[]tmp;
+}
+void decode_la88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+    decode_block16((uint16_t*)inbuf, width, height, (uint16_t*)outbuf);
+}
+
 void decode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     uint64_t *in64 = (uint64_t *)inbuf;
@@ -84,10 +132,10 @@ void decode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 
 const CODEC_FUNC DECODE_FUNCTIONS[] = { decode_rgba8,
                                         decode_rgb8,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
+                                        decode_rgba5551,
+                                        decode_rgb565,
+                                        decode_rgba4444,
+                                        decode_la88,
                                         NULL,
                                         NULL,
                                         NULL,

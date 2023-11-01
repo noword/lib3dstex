@@ -1,44 +1,6 @@
 from PIL import Image
-from ctypes import *
+from lib3dstex import encode, decode, FORMATS
 import os
-
-
-path = os.path.dirname(os.path.realpath(__file__))
-DLL_NAME = "lib3dstex.dll"
-DLL_FULL_NAME = os.path.join(path, DLL_NAME)
-if not os.path.exists(DLL_FULL_NAME):
-    DLL_FULL_NAME = os.path.join(os.getcwd(), DLL_NAME)
-DLL = cdll.LoadLibrary(DLL_FULL_NAME)
-
-FORMATS = {'RGBA8888': 0,
-           'RGB888': 1,
-           'RGBA_5551': 2,
-           'RGB_565': 3,
-           'RGBA_4444': 4,
-           'LUMINANCE_ALPHA_88': 5,
-           'HILO_88': 6,
-           'LUMINANCE_8': 7,
-           'ALPHA_8': 8,
-           'LUMINANCE_ALPHA_44': 9,
-           'LUMINANCE_4': 10,
-           'ALPHA_4': 11,
-           'ETC1': 12,
-           'ETC1_A4': 13, }
-
-
-def __codec(size_func, codec_func, buf, width, height, fmt):
-    size = size_func(width, height, fmt)
-    out = create_string_buffer(size)
-    codec_func(buf, width, height, fmt, out)
-    return out.raw
-
-
-def encode(buf, width, height, fmt):
-    return __codec(DLL.get_encode_size, DLL.encode, buf, width, height, fmt)
-
-
-def decode(buf, width, height, fmt):
-    return __codec(DLL.get_decode_size, DLL.decode, buf, width, height, fmt)
 
 
 def get_encoded_buf(image_name, fmt):
@@ -53,11 +15,12 @@ def get_same_ratio(buf1, buf2):
     return s / len(buf1)
 
 
-def test(image_name, fmt):
+def test(image_name, fmt, mode=None):
     im = Image.open(image_name)
     w, h = im.size
-    mode = im.mode
     raw = im.tobytes()
+    if mode is None:
+        mode = im.mode
 
     encode_buf = get_encoded_buf(image_name, fmt)
     buf = decode(encode_buf, w, h, FORMATS[fmt])
@@ -79,5 +42,9 @@ def test(image_name, fmt):
 
 test('rgba.tga', 'RGBA8888')
 test('rgb.tga', 'RGB888')
+test('rgba.tga', 'RGBA5551')
+test('rgb.tga', 'RGB565')
+test('rgba.tga', 'RGBA4444')
+test('rgba.tga', 'LA88', 'LA')
 test('rgb.tga', 'ETC1')
 test('rgba.tga', 'ETC1_A4')
