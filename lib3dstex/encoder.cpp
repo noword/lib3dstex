@@ -8,11 +8,10 @@ static bool gEtc1Inited = false;
 
 void encode_rgba8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint8_t *tmp = new uint8_t[width * height * 4];
-
+    uint32_t*tmp = new uint32_t[width * height];
     memcpy(tmp, inbuf, width * height * 4);
-    swap32s((uint32_t *)tmp, width * height);
-    encode_block32((uint32_t *)tmp, width, height, (uint32_t *)outbuf);
+    swap32s(tmp, width * height);
+    encode_block32(tmp, width, height, (uint32_t *)outbuf);
     delete[]tmp;
 }
 
@@ -71,6 +70,54 @@ void encode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbu
 
 void encode_la88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
 {
+    uint16_t* tmp = new uint16_t[width * height];
+    memcpy(tmp, inbuf, width * height * 2);
+    swap16s(tmp, width * height);
+    encode_block16(tmp, width, height, (uint16_t*)outbuf);
+    delete[]tmp;
+}
+
+void encode_hilo88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+    uint16_t* tmp = new uint16_t[width * height];
+    for (int i = 0; i < width * height; i++)
+    {
+        tmp[i] = (inbuf[1] << 8) | inbuf[0];
+        inbuf += 3;
+    }
+    encode_block16(tmp, width, height, (uint16_t*)outbuf);
+    delete[]tmp;
+}
+
+void encode_l8(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+    encode_block8(inbuf, width, height, outbuf);
+}
+
+void encode_a8(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+    encode_block8(inbuf, width, height, outbuf);
+}
+
+void encode_la44(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+    uint16_t* tmp = new uint16_t[width * height];
+    encode_block16((uint16_t *)inbuf, width, height, tmp);
+    uint8_t* p = (uint8_t*)tmp;
+    for (int i = 0; i < width * height; i++)
+    {
+        *outbuf++ = (p[0] & 0xf0) | (p[1] >> 4);
+        p += 2;
+    }
+    delete[]tmp;
+}
+
+void encode_l4(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
+}
+
+void encode_a4(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+{
 }
 
 void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
@@ -112,7 +159,7 @@ void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
             for (int i = 0; i < 4; i++)
             {
                 rg_etc1::pack_etc1_block(out64, p + i * 16, params);
-                *out64 = bswap_64(*out64);
+                *out64 = bswap64(*out64);
                 out64++;
             }
         }
@@ -163,7 +210,7 @@ void encode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
                 out64++;
 
                 rg_etc1::pack_etc1_block(out64, p + i * 16, params);
-                *out64 = bswap_64(*out64);
+                *out64 = bswap64(*out64);
                 out64++;
             }
         }
@@ -176,12 +223,12 @@ const CODEC_FUNC ENCODE_FUNCTIONS[] = { encode_rgba8,
                                         encode_rgb565,
                                         encode_rgba4444,
                                         encode_la88,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
+                                        encode_hilo88,
+                                        encode_l8,
+                                        encode_a8,
+                                        encode_la44,
+                                        encode_l4,
+                                        encode_a4,
                                         encode_etc1,
                                         encode_etc1a4,
 };
@@ -192,7 +239,7 @@ const float ENCODE_RATIO[] = { 4,   // RGBA_8888
                                2,   // RGB_565
                                2,   // RGBA_4444
                                2,   // LUMINANCE_ALPHA_88
-                               1,   // HILO_88
+                               2,   // HILO_88
                                1,   // LUMINANCE_8
                                1,   // ALPHA_8
                                1,   // LUMINANCE_ALPHA_44

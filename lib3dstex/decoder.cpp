@@ -58,9 +58,56 @@ void decode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbu
     }
     delete[]tmp;
 }
-void decode_la88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+
+void decode_la88(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    decode_block16((uint16_t*)inbuf, width, height, (uint16_t*)outbuf);
+    decode_block16((uint16_t *)inbuf, width, height, (uint16_t *)outbuf);
+    swap16s((uint16_t *)outbuf, width * height);
+}
+
+void decode_hilo88(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint16_t *tmp = new uint16_t[width * height];
+    decode_block16((uint16_t *)inbuf, width, height, tmp);
+    uint8_t *p = (uint8_t *)tmp;
+    for (int i = 0; i < width * height; i++)
+    {
+        *outbuf++ = p[1]; //R
+        *outbuf++ = p[0]; //G
+        *outbuf++ = 0;    //B
+        p        += 2;
+    }
+    delete[]tmp;
+}
+
+void decode_l8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    decode_block8(inbuf, width, height, outbuf);
+}
+
+void decode_a8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    decode_block8(inbuf, width, height, outbuf);
+}
+
+void decode_la44(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+    uint8_t *tmp = new uint8_t[width * height];
+    decode_block8(inbuf, width, height, tmp);
+    for (int i = 0; i < width * height; i++)
+    {
+        *outbuf++ = tmp[i] & 0xf0;
+        *outbuf++ = (tmp[i] & 0xf) << 4;
+    }
+    delete[]tmp;
+}
+
+void decode_l4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
+}
+
+void decode_a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+{
 }
 
 void decode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
@@ -74,7 +121,7 @@ void decode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
             uint32_t pixels[64];
             for (int i = 0; i < 4; i++)
             {
-                uint64_t tmp = bswap_64(*in64++);
+                uint64_t tmp = bswap64(*in64++);
                 rg_etc1::unpack_etc1_block(&tmp, pixels + i * 16, false);
             }
 
@@ -114,7 +161,7 @@ void decode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
                     a >>= 4;
                 }
 
-                uint64_t tmp = bswap_64(*in64++);
+                uint64_t tmp = bswap64(*in64++);
                 rg_etc1::unpack_etc1_block(&tmp, pixels + i * 16, false);
             }
 
@@ -136,30 +183,30 @@ const CODEC_FUNC DECODE_FUNCTIONS[] = { decode_rgba8,
                                         decode_rgb565,
                                         decode_rgba4444,
                                         decode_la88,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
+                                        decode_hilo88,
+                                        decode_l8,
+                                        decode_a8,
+                                        decode_la44,
+                                        decode_l4,
+                                        decode_a4,
                                         decode_etc1,
                                         decode_etc1a4,
 };
 
-const int DECODE_RATIO[] = { 4, //RGBA_8888
-                             3, //RGB_888
-                             4, //RGBA_5551
-                             3, //RGB_565
-                             4, //RGBA_4444,
-                             2, //LUMINANCE_ALPHA_88
-                             1, //HILO_88,
-                             1, //LUMINANCE_8
-                             1, //ALPHA_8,
-                             1, //LUMINANCE_ALPHA_44
-                             1, //LUMINANCE_4
-                             1, //ALPHA_4,
-                             3, //ETC1_RGB8,
-                             4  //ETC1_A4,
+const int DECODE_RATIO[] = { 4, // RGBA_8888
+                             3, // RGB_888
+                             4, // RGBA_5551
+                             3, // RGB_565
+                             4, // RGBA_4444,
+                             2, // LUMINANCE_ALPHA_88
+                             3, // HILO_88,
+                             1, // LUMINANCE_8
+                             1, // ALPHA_8,
+                             2, // LUMINANCE_ALPHA_44
+                             1, // LUMINANCE_4
+                             1, // ALPHA_4,
+                             3, // ETC1_RGB8,
+                             4  // ETC1_A4,
 };
 
 EXPORT size_t get_decode_size(size_t width, size_t height, TEXTURE_FORMAT format)

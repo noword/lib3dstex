@@ -1,16 +1,17 @@
 #include "utils.h"
 #include <stdio.h>
+#include <string.h>
 
 void swap32s(uint32_t *buf, size_t size)
 {
     for (int i = 0; i < size; i++)
     {
-        *buf = bswap_32(*buf);
+        *buf = bswap32(*buf);
         buf++;
     }
 }
 
-void swap24s(uint8_t* buf, size_t size)
+void swap24s(uint8_t *buf, size_t size)
 {
     for (int i = 0; i < size; i++)
     {
@@ -18,7 +19,16 @@ void swap24s(uint8_t* buf, size_t size)
         uint8_t v2 = buf[2];
         buf[0] = v2;
         buf[2] = v0;
-        buf += 3;
+        buf   += 3;
+    }
+}
+
+void swap16s(uint16_t *buf, size_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        *buf = bswap16(*buf);
+        buf++;
     }
 }
 
@@ -97,7 +107,7 @@ void encode_block8(uint8_t *in, size_t width, size_t height, uint8_t *out)
     return encode_block(in, width, height, out);
 }
 
-void decode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out)
+void decode_block24(uint8_t *in, size_t width, size_t height, uint8_t *out)
 {
     for (int ty = 0; ty < height; ty += 8)
     {
@@ -106,10 +116,10 @@ void decode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out)
             for (int i = 0; i < 64; i++)
             {
                 size_t order = TILE_ORDER[i];
-                size_t x = order & 7;
-                size_t y = order >> 3;
+                size_t x     = order & 7;
+                size_t y     = order >> 3;
 
-                uint8_t* op = out + ((ty + y) * width + tx + x) * 3;
+                uint8_t *op = out + ((ty + y) * width + tx + x) * 3;
                 *op++ = *in++;
                 *op++ = *in++;
                 *op++ = *in++;
@@ -118,7 +128,7 @@ void decode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out)
     }
 }
 
-void encode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out)
+void encode_block24(uint8_t *in, size_t width, size_t height, uint8_t *out)
 {
     for (int ty = 0; ty < height; ty += 8)
     {
@@ -127,13 +137,39 @@ void encode_block24(uint8_t* in, size_t width, size_t height, uint8_t* out)
             for (int i = 0; i < 64; i++)
             {
                 size_t order = TILE_ORDER[i];
-                size_t x = order & 7;
-                size_t y = order >> 3;
+                size_t x     = order & 7;
+                size_t y     = order >> 3;
 
-                uint8_t* ip = in + ((ty + y) * width + tx + x) * 3;
+                uint8_t *ip = in + ((ty + y) * width + tx + x) * 3;
                 *out++ = *ip++;
                 *out++ = *ip++;
                 *out++ = *ip++;
+            }
+        }
+    }
+}
+
+void decode_block4(uint8_t *in, size_t width, size_t height, uint8_t *out)
+{
+    memset(out, 0, width * height / 2);
+    for (int ty = 0; ty < height; ty += 8)
+    {
+        for (int tx = 0; tx < width; tx += 8)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                size_t   order = TILE_ORDER[i];
+                size_t   x     = order & 7;
+                size_t   y     = order >> 3;
+                uint8_t *o     = out + ((ty + y) * width + tx + x) / 2;
+                if (i & 1)
+                {
+                    *o |= (*in++) & 0xf;
+                }
+                else
+                {
+                    *o |= (*in) & 0xf0;
+                }
             }
         }
     }

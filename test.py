@@ -18,15 +18,17 @@ def get_same_ratio(buf1, buf2):
 def test(image_name, fmt, mode=None):
     im = Image.open(image_name)
     w, h = im.size
-    raw = im.tobytes()
     if mode is None:
         mode = im.mode
+    else:
+        im = im.convert(mode)
+    raw = im.tobytes()
 
     encode_buf = get_encoded_buf(image_name, fmt)
-    buf = decode(encode_buf, w, h, FORMATS[fmt])
+    decode_buf = decode(encode_buf, w, h, FORMATS[fmt])
 
     im = Image.new(mode, (w, h))
-    im.frombytes(buf)
+    im.frombytes(decode_buf)
     im.save(f'{FORMATS[fmt]}_{fmt}.png')
 
     my_encode_buf = encode(raw, w, h, FORMATS[fmt])
@@ -46,5 +48,9 @@ test('rgba.tga', 'RGBA5551')
 test('rgb.tga', 'RGB565')
 test('rgba.tga', 'RGBA4444')
 test('rgba.tga', 'LA88', 'LA')
+test('rgb.tga', 'HL8')
+test('rgb.tga', 'L8', 'L')
+test('rgb.tga', 'A8', 'L')
+test('rgba.tga', 'LA44', 'LA')
 test('rgb.tga', 'ETC1')
 test('rgba.tga', 'ETC1_A4')

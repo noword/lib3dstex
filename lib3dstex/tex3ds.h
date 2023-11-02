@@ -12,18 +12,18 @@
 
 enum TEXTURE_FORMAT
 {
-    RGBA_8888 = 0,
-    RGB_888 = 1,
-    RGBA_5551 = 2,
-    RGB_565 = 3,
-    RGBA_4444 = 4,
-    LUMINANCE_ALPHA_88 = 5,
-    HILO_88 = 6,
-    LUMINANCE_8 = 7,
-    ALPHA_8 = 8,
-    LUMINANCE_ALPHA_44 = 9,
-    LUMINANCE_4 = 10,
-    ALPHA_4 = 11,
+    RGBA_8888 = 0,          // RGBA 8888
+    RGB_888 = 1,            // RGB 888
+    RGBA_5551 = 2,          // RGBA 5551
+    RGB_565 = 3,            // RGB 565
+    RGBA_4444 = 4,          // RGBA 4444
+    LUMINANCE_ALPHA_88 = 5, // a 8-bit luminance component and a 8-bit alpha value
+    HILO_88 = 6,            // R and G components
+    LUMINANCE_8 = 7,        // a 8-bit luminance component
+    ALPHA_8 = 8,            // A8
+    LUMINANCE_ALPHA_44 = 9, // a 4-bit luminance component and a 4-bit alpha value
+    LUMINANCE_4 = 10,       // a 4-bit luminance component
+    ALPHA_4 = 11,           // A4
     ETC1_RGB8 = 12,
     ETC1_A4 = 13,
     FORMAT_NUM,
