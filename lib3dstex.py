@@ -25,24 +25,25 @@ FORMATS = {'RGBA8888': (0, 'RGBA'),
            'ETC1_A4': (13, 'RGBA')}
 
 
-def __codec(size_func: CFUNCTYPE, codec_func: CFUNCTYPE, buf: bytes, width: int, height: int, fmt: str) -> bytes:
+def __codec(size_func: CFUNCTYPE, codec_func: CFUNCTYPE, buf: bytes, width: int, height: int, fmt: int) -> bytes:
     size = size_func(width, height, fmt)
     out = create_string_buffer(size)
     codec_func(buf, width, height, fmt, out)
     return out.raw
 
 
-def encode(buf: bytes, width: int, height: int, fmt: str) -> bytes:
+def encode(buf: bytes, width: int, height: int, fmt: int) -> bytes:
     return __codec(DLL.get_encode_size, DLL.encode, buf, width, height, fmt)
 
 
-def decode(buf: bytes, width: int, height: int, fmt: str) -> bytes:
+def decode(buf: bytes, width: int, height: int, fmt: int) -> bytes:
     return __codec(DLL.get_decode_size, DLL.decode, buf, width, height, fmt)
 
 
 def bin2image(buf: bytes, width: int, height: int, fmt: str) -> Image:
-    im = Image.new(FORMATS[fmt][1], (width, height))
-    im.frombytes(decode(buf, width, height, fmt))
+    index, mode = FORMATS[fmt]
+    im = Image.new(mode, (width, height))
+    im.frombytes(decode(buf, width, height, index))
     return im
 
 
