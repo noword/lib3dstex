@@ -3,10 +3,15 @@ from lib3dstex import encode, decode, FORMATS
 import os
 
 
-def get_encoded_buf(image_name, fmt):
-    os.system(f'ctr_TexturePackager32.exe -l "{image_name},format({fmt})" -nt -o tmp.ctpk')
+def get_encoded_buf_offical(im_name, fmt):
+    os.system(f'ctr_TexturePackager32.exe -l "{im_name},format({fmt})" -nt -o tmp.ctpk')
     return open('tmp.ctpk', 'rb').read()[0x80:]
 
+def get_encoded_buf_tex3ds(im_name, fmt):
+    os.system(f'tex3ds -f {fmt} -z none -r -o tmp.bin {im_name}')
+    return open('tmp.bin', 'rb').read()[4:]
+
+get_encoded_buf = get_encoded_buf_offical
 
 def get_same_ratio(buf1, buf2):
     s = 0
@@ -15,15 +20,15 @@ def get_same_ratio(buf1, buf2):
     return s / len(buf1)
 
 
-def test(image_name, fmt):
+def test(im_name, fmt):
     index, mode = FORMATS[fmt]
-    im = Image.open(image_name)
+    im = Image.open(im_name)
     w, h = im.size
     if mode != im.mode:
         im = im.convert(mode)
     raw = im.tobytes()
 
-    encode_buf = get_encoded_buf(image_name, fmt)
+    encode_buf = get_encoded_buf(im_name, fmt)
     decode_buf = decode(encode_buf, w, h, index)
 
     im = Image.new(mode, (w, h))
@@ -51,5 +56,7 @@ test('rgb.tga', 'HL8')
 test('rgb.tga', 'L8')
 test('rgb.tga', 'A8')
 test('rgba.tga', 'LA44')
+test('rgb.tga', 'L4')
+test('rgb.tga', 'A4')
 test('rgb.tga', 'ETC1')
 test('rgba.tga', 'ETC1_A4')

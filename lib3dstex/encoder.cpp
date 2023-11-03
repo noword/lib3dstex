@@ -6,28 +6,31 @@
 
 static bool gEtc1Inited = false;
 
-void encode_rgba8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_rgba8(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint32_t*tmp = new uint32_t[width * height];
-    memcpy(tmp, inbuf, width * height * 4);
-    swap32s(tmp, width * height);
+    size_t    size = width * height;
+    uint32_t *tmp  = new uint32_t[size];
+    memcpy(tmp, inbuf, size * 4);
+    swap32s(tmp, size);
     encode_block32(tmp, width, height, (uint32_t *)outbuf);
     delete[]tmp;
 }
 
-void encode_rgb8(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_rgb8(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint8_t *tmp = new uint8_t[width * height * 3];
-    memcpy(tmp, inbuf, width * height * 3);
-    swap24s(tmp, width * height);
+    size_t   size = width * height;
+    uint8_t *tmp  = new uint8_t[size * 3];
+    memcpy(tmp, inbuf, size * 3);
+    swap24s(tmp, size);
     encode_block24(tmp, width, height, outbuf);
     delete[]tmp;
 }
 
-void encode_rgba5551(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_rgba5551(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t *tmp = new uint16_t[width * height];
-    for (int i = 0; i < width * height; i++)
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
+    for (int i = 0; i < size; i++)
     {
         tmp[i] = ((inbuf[0] >> 3) << 11) | //R
                  ((inbuf[1] >> 3) << 6) |  //G
@@ -39,10 +42,11 @@ void encode_rgba5551(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbu
     delete[]tmp;
 }
 
-void encode_rgb565(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_rgb565(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t *tmp = new uint16_t[width * height];
-    for (int i = 0; i < width * height; i++)
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
+    for (int i = 0; i < size; i++)
     {
         tmp[i] = ((inbuf[0] >> 3) << 11) | //R
                  ((inbuf[1] >> 2) << 5) |  //G
@@ -53,10 +57,11 @@ void encode_rgb565(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     delete[]tmp;
 }
 
-void encode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_rgba4444(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t *tmp = new uint16_t[width * height];
-    for (int i = 0; i < width * height; i++)
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
+    for (int i = 0; i < size; i++)
     {
         tmp[i] = ((inbuf[0] >> 4) << 12) | //R
                  ((inbuf[1] >> 4) << 8) |  //G
@@ -68,59 +73,71 @@ void encode_rgba4444(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbu
     delete[]tmp;
 }
 
-void encode_la88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_la88(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t* tmp = new uint16_t[width * height];
-    memcpy(tmp, inbuf, width * height * 2);
-    swap16s(tmp, width * height);
-    encode_block16(tmp, width, height, (uint16_t*)outbuf);
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
+    memcpy(tmp, inbuf, size * 2);
+    swap16s(tmp, size);
+    encode_block16(tmp, width, height, (uint16_t *)outbuf);
     delete[]tmp;
 }
 
-void encode_hilo88(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_hilo88(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t* tmp = new uint16_t[width * height];
-    for (int i = 0; i < width * height; i++)
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
+    for (int i = 0; i < size; i++)
     {
         tmp[i] = (inbuf[1] << 8) | inbuf[0];
         inbuf += 3;
     }
-    encode_block16(tmp, width, height, (uint16_t*)outbuf);
+    encode_block16(tmp, width, height, (uint16_t *)outbuf);
     delete[]tmp;
 }
 
-void encode_l8(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_l8(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     encode_block8(inbuf, width, height, outbuf);
 }
 
-void encode_a8(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_a8(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     encode_block8(inbuf, width, height, outbuf);
 }
 
-void encode_la44(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_la44(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
-    uint16_t* tmp = new uint16_t[width * height];
+    size_t    size = width * height;
+    uint16_t *tmp  = new uint16_t[size];
     encode_block16((uint16_t *)inbuf, width, height, tmp);
-    uint8_t* p = (uint8_t*)tmp;
-    for (int i = 0; i < width * height; i++)
+    uint8_t *p = (uint8_t *)tmp;
+    for (int i = 0; i < size; i++)
     {
         *outbuf++ = (p[0] & 0xf0) | (p[1] >> 4);
-        p += 2;
+        p        += 2;
     }
     delete[]tmp;
 }
 
-void encode_l4(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_l4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
+    uint8_t *tmp = new uint8_t[width * height];
+    uint8_t *out = outbuf;
+    encode_block8(inbuf, width, height, tmp);
+    for (int i = 0; i < width * height ; i += 2)
+    {
+        *out++ = (tmp[i] >> 4) | (tmp[i + 1] & 0xf0);
+    }
+    delete[]tmp;
 }
 
-void encode_a4(uint8_t* inbuf, size_t width, size_t height, uint8_t* outbuf)
+void encode_a4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
+    encode_l4(inbuf, width, height, outbuf);
 }
 
-void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_etc1(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     if (!gEtc1Inited)
     {
@@ -131,9 +148,9 @@ void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     rg_etc1::etc1_pack_params params;
     params.clear();
 
-    uint32_t *tmp   = new uint32_t[width * height];
-    uint8_t * p     = inbuf;
-    uint64_t *out64 = (uint64_t *)outbuf;
+    uint32_t *     tmp   = new uint32_t[width * height];
+    const uint8_t *p     = inbuf;
+    uint64_t *     out64 = (uint64_t *)outbuf;
 
     for (size_t i = 0; i < width * height; i++)
     {
@@ -168,7 +185,7 @@ void encode_etc1(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
     delete[]tmp;
 }
 
-void encode_etc1a4(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
+void encode_etc1a4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
 {
     if (!gEtc1Inited)
     {
@@ -254,7 +271,7 @@ EXPORT size_t get_encode_size(size_t width, size_t height, TEXTURE_FORMAT format
     return format < FORMAT_NUM ? (size_t)(width * height * ENCODE_RATIO[format]) : 0;
 }
 
-EXPORT void encode(uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf)
+EXPORT void encode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf)
 {
     if (format < FORMAT_NUM)
     {

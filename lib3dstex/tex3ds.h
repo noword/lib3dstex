@@ -36,9 +36,9 @@ const int ETC1_TILE_ORDER[] = { 0,   1,  2,  3,  8,  9, 10, 11, 16, 17, 18, 19, 
 
 const int ETC1_ALPHA_ORDER[] = { 0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15 };
 
-typedef void (*CODEC_FUNC)(uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf);
+typedef void (*CODEC_FUNC)(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf);
 
 EXPORT size_t get_encode_size(size_t width, size_t height, TEXTURE_FORMAT format);
-EXPORT void encode(uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf);
 EXPORT size_t get_decode_size(size_t width, size_t height, TEXTURE_FORMAT format);
-EXPORT void decode(uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf);
+EXPORT void encode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf);
+EXPORT void decode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf);
