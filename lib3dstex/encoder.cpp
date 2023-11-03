@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <string.h>
-#include "rg_etc1.h"
 #include "tex3ds.h"
+#include "rg_etc1.h"
 #include "utils.h"
 
 static bool gEtc1Inited = false;
@@ -247,8 +247,7 @@ const CODEC_FUNC ENCODE_FUNCTIONS[] = { encode_rgba8,
                                         encode_l4,
                                         encode_a4,
                                         encode_etc1,
-                                        encode_etc1a4,
-};
+                                        encode_etc1a4 };
 
 const float ENCODE_RATIO[] = { 4,   // RGBA_8888
                                3,   // RGB_888
@@ -268,7 +267,7 @@ const float ENCODE_RATIO[] = { 4,   // RGBA_8888
 
 EXPORT size_t get_encode_size(size_t width, size_t height, TEXTURE_FORMAT format)
 {
-    return format < FORMAT_NUM ? (size_t)(width * height * ENCODE_RATIO[format]) : 0;
+    return format < FORMAT_NUM ? width * height * ENCODE_RATIO[format] : 0;
 }
 
 EXPORT void encode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf)

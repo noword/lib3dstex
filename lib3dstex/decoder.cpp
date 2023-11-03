@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include "rg_etc1.h"
 #include "tex3ds.h"
+#include "rg_etc1.h"
 #include "utils.h"
 
 void decode_rgba8(const uint8_t *inbuf, size_t width, size_t height, uint8_t *outbuf)
@@ -205,8 +205,7 @@ const CODEC_FUNC DECODE_FUNCTIONS[] = { decode_rgba8,
                                         decode_l4,
                                         decode_a4,
                                         decode_etc1,
-                                        decode_etc1a4,
-};
+                                        decode_etc1a4 };
 
 const int DECODE_RATIO[] = { 4, // RGBA_8888
                              3, // RGB_888
