@@ -15,8 +15,8 @@ enum TEXTURE_FORMAT
     LUMINANCE_ALPHA_44 = 9, // a 4-bit luminance component and a 4-bit alpha value
     LUMINANCE_4 = 10,       // a 4-bit luminance component
     ALPHA_4 = 11,           // A4
-    ETC1_RGB8 = 12,
-    ETC1_A4 = 13,
+    ETC1_RGB8 = 12,         // ETC1 format
+    ETC1_A4 = 13,           // ETC1 format with alpha value
 }
 ```
 
