@@ -59,13 +59,13 @@ def decode(buf: bytes, width: int, height: int, fmt: Union[int, str]) -> bytes:
 
 
 def bin2image(buf: bytes, width: int, height: int, fmt: str) -> Image:
-    index, mode = FORMATS[fmt]
+    index, mode = TEXTURE_3DS_FORMATS[fmt]
     im = Image.new(mode, (width, height))
     im.frombytes(decode(buf, width, height, index))
     return im
 
 
 def image2bin(im: Image, fmt: str) -> bytes:
-    index, mode = FORMATS[fmt]
+    index, mode = TEXTURE_3DS_FORMATS[fmt]
     width, height = im.size
-    return encode(im.convert(mode).tobytes(), widht, height, index)
+    return encode(im.convert(mode).tobytes(), width, height, index)
