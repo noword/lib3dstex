@@ -30,8 +30,10 @@ EXPORT void decode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FO
 
 # python API
 ```python
-def encode(buf: bytes, width: int, height: int, fmt: int) -> bytes:
-def decode(buf: bytes, width: int, height: int, fmt: int) -> bytes:
+def get_encode_size(width: int, height: int, fmt: Union[int, str]) -> int:
+def get_decode_size(width: int, height: int, fmt: Union[int, str]) -> int:
+def encode(buf: bytes, width: int, height: int, fmt: Union[int, str]) -> bytes:
+def decode(buf: bytes, width: int, height: int, fmt: Union[int, str]) -> bytes:
 def bin2image(buf: bytes, width: int, height: int, fmt: str) -> Image:
 def image2bin(im: Image, fmt: str) -> bytes:
 ```
