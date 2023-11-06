@@ -147,6 +147,7 @@ void encode_etc1(const uint8_t *inbuf, size_t width, size_t height, uint8_t *out
 
     rg_etc1::etc1_pack_params params;
     params.clear();
+    params.m_quality = rg_etc1::cMediumQuality;
 
     uint32_t *     tmp   = new uint32_t[width * height];
     const uint8_t *p     = inbuf;
@@ -195,40 +196,44 @@ void encode_etc1a4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *o
 
     rg_etc1::etc1_pack_params params;
     params.clear();
+    params.m_quality = rg_etc1::cMediumQuality;
 
     uint32_t *in32  = (uint32_t *)inbuf;
     uint64_t *out64 = (uint64_t *)outbuf;
+    uint32_t  pixels[64];
+    uint64_t alpha[4];
+    uint8_t* alpha8 = (uint8_t*)alpha;
 
     for (int ty = 0; ty < height; ty += 8)
     {
         for (int tx = 0; tx < width; tx += 8)
         {
-            uint32_t pixels[64];
-            uint32_t alpha[64] = { 0 };
+            memset(alpha, 0, sizeof(alpha));
             for (int i = 0; i < 64; i++)
             {
                 size_t   order = ETC1_TILE_ORDER[i];
                 size_t   x     = order & 7;
                 size_t   y     = order >> 3;
                 uint32_t p     = in32[(ty + y) * width + tx + x];
-                pixels[i] = (p & 0xffffff) | 0xff000000;
-                alpha[i]  = p >> 28;
+                pixels[i] = p | 0xff000000;
+                order     = ETC1_ALPHA_ORDER_64[i];
+                if ((order & 1) == 1)
+                {
+                    alpha8[order / 2] |= (p >> 24) & 0xf0;
+                }
+                else
+                {
+                    alpha8[order / 2] |= p >> 28;
+                }
             }
 
             unsigned int *p = (unsigned int *)pixels;
             for (int i = 0; i < 4; i++)
             {
-                *out64 = 0;
-                for (int j = 15; j >= 0; j--)
-                {
-                    *out64 <<= 4;
-                    *out64  |= alpha[i * 16 + ETC1_ALPHA_ORDER[j]];
-                }
-                out64++;
-
-                rg_etc1::pack_etc1_block(out64, p + i * 16, params);
-                *out64 = bswap64(*out64);
-                out64++;
+                *out64++ = alpha[i];
+                uint64_t a = 0;
+                rg_etc1::pack_etc1_block(&a, p + i * 16, params);
+                *out64++ = bswap64(a);
             }
         }
     }
@@ -267,7 +272,7 @@ const float ENCODE_RATIO[] = { 4,   // RGBA_8888
 
 EXPORT size_t get_encode_size(size_t width, size_t height, TEXTURE_FORMAT format)
 {
-    return format < FORMAT_NUM ? width * height * ENCODE_RATIO[format] : 0;
+    return (size_t)(format < FORMAT_NUM ? width * height * ENCODE_RATIO[format] : 0);
 }
 
 EXPORT void encode(const uint8_t *inbuf, size_t width, size_t height, TEXTURE_FORMAT format, uint8_t *outbuf)

@@ -47,6 +47,7 @@ static inline uint64_t bswap64(uint64_t x)
 extern void swap16s(uint16_t *buf, size_t size);
 extern void swap24s(uint8_t *buf, size_t size);
 extern void swap32s(uint32_t *buf, size_t size);
+extern void swap64s(uint64_t *buf, size_t size);
 
 extern void decode_block8(const uint8_t *in, size_t width, size_t height, uint8_t *out);
 extern void decode_block16(const uint16_t *in, size_t width, size_t height, uint16_t *out);

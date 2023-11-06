@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 
-void swap32s(uint32_t *buf, size_t size)
+
+void swap16s(uint16_t *buf, size_t size)
 {
     for (int i = 0; i < size; i++)
     {
-        *buf = bswap32(*buf);
+        *buf = bswap16(*buf);
         buf++;
     }
 }
@@ -23,11 +24,20 @@ void swap24s(uint8_t *buf, size_t size)
     }
 }
 
-void swap16s(uint16_t *buf, size_t size)
+void swap32s(uint32_t *buf, size_t size)
 {
     for (int i = 0; i < size; i++)
     {
-        *buf = bswap16(*buf);
+        *buf = bswap32(*buf);
+        buf++;
+    }
+}
+
+void swap64s(uint64_t *buf, size_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        *buf = bswap64(*buf);
         buf++;
     }
 }
