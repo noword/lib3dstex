@@ -169,14 +169,14 @@ void decode_etc1a4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *o
 
             for (int i = 0; i < 4; i++)
             {
-                uint64_t a = *in64++;
+                uint64_t tmp = *in64++;
                 for (int j = 0; j < 16; j++)
                 {
-                    alpha[i * 16 + ETC1_ALPHA_ORDER[j]] = (a & 0xf) << 28;
-                    a >>= 4;
+                    alpha[ETC1_ALPHA_ORDER[i * 16 + j]] = (tmp & 0xf) << 28;
+                    tmp >>= 4;
                 }
 
-                uint64_t tmp = bswap64(*in64++);
+                tmp = bswap64(*in64++);
                 rg_etc1::unpack_etc1_block(&tmp, pixels + i * 16, false);
             }
 

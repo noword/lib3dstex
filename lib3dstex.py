@@ -4,27 +4,27 @@ from PIL import Image
 from typing import Union
 
 __path = os.path.dirname(os.path.realpath(__file__))
-DLL_NAME = "lib3dstex.dll"
+DLL_NAME = 'lib3dstex.dll'
 DLL_FULL_NAME = os.path.join(__path, DLL_NAME)
 if not os.path.exists(DLL_FULL_NAME):
     DLL_FULL_NAME = os.path.join(os.getcwd(), DLL_NAME)
 DLL = cdll.LoadLibrary(DLL_FULL_NAME)
 
 TEXTURE_3DS_FORMATS = {
-    "RGBA8888": (0, "RGBA"),
-    "RGB888": (1, "RGB"),
-    "RGBA5551": (2, "RGBA"),
-    "RGB565": (3, "RGB"),
-    "RGBA4444": (4, "RGBA"),
-    "LA88": (5, "LA"),
-    "HL8": (6, "RGB"),
-    "L8": (7, "L"),
-    "A8": (8, "L"),
-    "LA44": (9, "LA"),
-    "L4": (10, "L"),
-    "A4": (11, "L"),
-    "ETC1": (12, "RGB"),
-    "ETC1_A4": (13, "RGBA"),
+    'RGBA8888': (0, 'RGBA'),
+    'RGB888': (1, 'RGB'),
+    'RGBA5551': (2, 'RGBA'),
+    'RGB565': (3, 'RGB'),
+    'RGBA4444': (4, 'RGBA'),
+    'LA88': (5, 'LA'),
+    'HL8': (6, 'RGB'),
+    'L8': (7, 'L'),
+    'A8': (8, 'L'),
+    'LA44': (9, 'LA'),
+    'L4': (10, 'L'),
+    'A4': (11, 'L'),
+    'ETC1': (12, 'RGB'),
+    'ETC1_A4': (13, 'RGBA'),
 }
 
 

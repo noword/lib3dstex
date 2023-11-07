@@ -216,7 +216,7 @@ void encode_etc1a4(const uint8_t *inbuf, size_t width, size_t height, uint8_t *o
                 size_t   y     = order >> 3;
                 uint32_t p     = in32[(ty + y) * width + tx + x];
                 pixels[i] = p | 0xff000000;
-                order     = ETC1_ALPHA_ORDER_64[i];
+                order     = ETC1_ALPHA_ORDER[i];
                 if ((order & 1) == 1)
                 {
                     alpha8[order / 2] |= (p >> 24) & 0xf0;
